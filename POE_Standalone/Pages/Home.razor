@@ -149,7 +149,7 @@
         var oilArray = await Http.GetFromJsonAsync<OilData[]>("oilData.json");
         var gemArray = await Http.GetFromJsonAsync<GemData[]>("gemData.json");
         oils = oilArray?.OrderBy(oil => oil.Passive).ToList();
-        gems = gemArray?.ToList();
+        gems = gemArray?.OrderBy(gem => gem.Name).ToList();
         isLoading = false;
     }
 
