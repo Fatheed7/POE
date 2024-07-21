@@ -1,0 +1,238 @@
+﻿@page "/"
+@using MudBlazor
+@using POE.Models
+@inject HttpClient Http
+
+<MudContainer>
+    @if (isLoading)
+    {
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText>Loading...</MudText>
+            </MudItem>
+        </MudGrid>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="6">
+                <MudGrid Class="d-flex justify-center align-end" AlignItems="Center">
+                    <MudItem xs="2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ClearOil">Clear</MudButton>
+                    </MudItem>
+                    <MudItem xs="10">
+                        <MudAutocomplete T="OilData" Label="Search for annointment" @bind-Value="selectedOil"
+                                         SearchFunc="@SearchOils"
+                                         ToStringFunc="@((oil) => oil?.Passive ?? string.Empty)" />
+                    </MudItem>
+                </MudGrid>
+
+                @if (selectedOil != null)
+                {
+                    <MudItem xs="12">
+                        <MudPaper Elevation="0" Class="mt-5">
+                            <MudStack>
+                                <MudText><strong>Passive:</strong> @selectedOil.Passive</MudText>
+                                <MudText><strong>Stats:</strong> @selectedOil.Stats</MudText>
+                            </MudStack>
+                            <MudGrid>
+                                <MudItem xs="4">
+                                    <MudText><strong>Oil 1:</strong> @selectedOil.Oil_1</MudText>
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudText><strong>Oil 2:</strong> @selectedOil.Oil_2</MudText>
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudText><strong>Oil 3:</strong> @selectedOil.Oil_3</MudText>
+                                </MudItem>
+                            </MudGrid>
+
+                            @if (!string.IsNullOrEmpty(selectedOil.Oil_1))
+                            {
+                                <MudGrid>
+                                    <MudItem xs="4">
+                                        <MudImage Src="@GetImageSrc(selectedOil.Oil_1)" Alt="Oil image" Class="rounded-lg" Width="50" />
+                                    </MudItem>
+                                    <MudItem xs="4">
+                                        <MudImage Src="@GetImageSrc(selectedOil.Oil_2)" Alt="Oil image" Class="rounded-lg" Width="50" />
+                                    </MudItem>
+                                    <MudItem xs="4">
+                                        <MudImage Src="@GetImageSrc(selectedOil.Oil_3)" Alt="Oil image" Class="rounded-lg" Width="50" />
+                                    </MudItem>
+                                </MudGrid>
+                            }
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudItem>
+            <MudItem xs="6">
+                <MudGrid Class="d-flex justify-center align-end" AlignItems="Center">
+                    <MudItem xs="10">
+                        <MudAutocomplete T="GemData" Label="Search for skill gem" @bind-Value="selectedGem"
+                                         SearchFunc="@SearchGems"
+                                         ToStringFunc="@((gem) => gem?.Name ?? string.Empty)" />
+                    </MudItem>
+                    <MudItem xs="2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ClearGem">Clear</MudButton>
+                    </MudItem>
+                </MudGrid>
+
+                @if (selectedGem != null)
+                {
+                    <MudItem xs="12">
+                        <MudPaper Elevation="0" Class="mt-5">
+                            <MudImage Src="@selectedGem.IconPath" />
+                            @if (selectedGem.IsReward)
+                            {
+                                <MudChip T="string" Color="Color.Primary">Quest Reward</MudChip>
+                            }
+                            @if (selectedGem.IsVaal)
+                            {
+                                <MudChip T="string" Color="Color.Error">Vaal Gem</MudChip>
+                            }
+                            @if (selectedGem.IsSupport)
+                            {
+                                <MudChip T="string" Color="Color.Error">Support Gem</MudChip>
+                            }
+                            @if (selectedGem.Color.Length > 0)
+                            {
+                                <MudChip T="string" Color=SetGemColour(selectedGem.Color)>@CapitaliseFirstLetter(@selectedGem.Color) Gem</MudChip>
+                            }
+                            <MudStack>
+                                <MudText><strong>Gem:</strong> @selectedGem.Name</MudText>
+                                <MudText><strong>Required Level:</strong> @selectedGem.RequiredLvl</MudText>
+
+                                @if (selectedGem.Buy != null && selectedGem.Buy.Count > 0)
+                                {
+                                    <MudText><strong>Available for Purchase From:</strong></MudText>
+                                    <ul>
+                                        @foreach (var buyInfo in selectedGem.Buy)
+                                        {
+                                            <li class="mb-3">
+                                                <strong>@buyInfo.Npc</strong> in <strong>Act @buyInfo.Act, @buyInfo.Town</strong> after completing <strong>@buyInfo.QuestName</strong>
+
+                                                <ul>
+                                                    @foreach (var availableTo in buyInfo.AvailableTo)
+                                                    {
+                                                        <MudChip T="string">@availableTo</MudChip>
+                                                    }
+                                                </ul>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </MudStack>
+                            <MudItem Class="mt-5">
+                            <MudText>Tags:</MudText>
+                            @foreach(var tag in selectedGem.GemTags)
+                            {
+                                <MudChip T="string" Size="Size.Small">@tag</MudChip>
+                            }
+                            </MudItem>
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
+
+@code {
+    private OilData? selectedOil;
+    private GemData? selectedGem;
+    public bool isLoading = true;
+    private List<OilData>? oils;
+    private List<GemData>? gems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var oilArray = await Http.GetFromJsonAsync<OilData[]>("oilData.json");
+        var gemArray = await Http.GetFromJsonAsync<GemData[]>("gemData.json");
+        oils = oilArray?.ToList();
+        gems = gemArray?.ToList();
+        isLoading = false;
+    }
+
+    private async Task<IEnumerable<OilData>> SearchOils(string value, CancellationToken token)
+    {
+        if (oils == null)
+        {
+            return Enumerable.Empty<OilData>();
+        }
+
+        await Task.Delay(5, token);
+
+        if (string.IsNullOrEmpty(value))
+        {
+            return oils;
+        }
+
+        var results = oils.Where(x => x.Passive != null && x.Passive.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                          .Distinct();
+        return results;
+    }
+
+    private async Task<IEnumerable<GemData>> SearchGems(string value, CancellationToken token)
+    {
+        if (gems == null)
+        {
+            return Enumerable.Empty<GemData>();
+        }
+
+        await Task.Delay(5, token);
+
+        if (string.IsNullOrEmpty(value))
+        {
+            return gems;
+        }
+
+        var results = gems.Where(x => x.Name != null && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                          .Distinct();
+        return results;
+    }
+
+    private string GetImageSrc(string oilName)
+    {
+        var firstWord = oilName.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        if (firstWord != null)
+        {
+            var lowerCaseFirstWord = firstWord.ToLower();
+            return $"img/{lowerCaseFirstWord}.png";
+        }
+        return "img/default.jpg";
+    }
+
+    private Color SetGemColour(string colour)
+    {
+        switch (colour)
+        {
+            case "green":
+                return Color.Success;
+            case "red":
+                return Color.Error;
+            case "blue":
+                return Color.Info;
+            default:
+                return Color.Default;
+        }
+    }
+
+    private string CapitaliseFirstLetter(string word)
+    {
+        if (string.IsNullOrEmpty(word))
+        {
+            return string.Empty;
+        }
+        return $"{word[0].ToString().ToUpper()}{word.Substring(1)}";
+    }
+
+    private void ClearGem()
+    {
+        selectedGem = null;
+    }
+
+    private void ClearOil()
+    {
+        selectedOil = null;
+    }
+}
