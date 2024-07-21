@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "POE_Standalone",
   "resources": {
-    "hash": "sha256-VKxMoW8VYQwT6h9SfpvvCxi9J1gYb382K9KsMCZTY1k=",
+    "hash": "sha256-Ku7s2YR6zqC5hIBhnujHgJxqET1SYsT0/zPWbQ/foKU=",
     "jsModuleNative": {
       "dotnet.native.8.0.7.pvkr2na9g4.js": "sha256-tFsxPBbhkdn6GKNBKvCRLzrfAHdyM86odYTe0MtrwMk="
     },
@@ -35,7 +35,7 @@
       "Microsoft.JSInterop.wasm": "sha256-sSGkq92joZqQ127BsZhDunya1tK26Rcjwizv1Let1Rw=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-rhDkGvVEd5YGb2JsVk1xQC7gCF8TXNfpDfo9dGFhuyI=",
       "MudBlazor.wasm": "sha256-1lpSJu/ikVq/CvbgnWKg6S+xW1jdTUQIeniiEBay838=",
-      "POE_Standalone.wasm": "sha256-iA3yepuVAf2kgjsZxmbCMEgU5dfr5pYhd1wOp3m/ZJQ=",
+      "POE_Standalone.wasm": "sha256-ISm3KXiEXbHOxOP5k5UGLonGOJc1jgi5gIu02ha/AFM=",
       "System.Collections.Concurrent.wasm": "sha256-1akS4L17kgK2LxuyrXhid9C1UNwJ/wRKqQ8jChWxYFc=",
       "System.Collections.Immutable.wasm": "sha256-3hT9f7UYmjpVVIwAy0TvwCLmIu9dTGkf0JF0OaFJNlc=",
       "System.Collections.wasm": "sha256-zO2L9DMv0Qjf8XYnC/QAwCUKXThmCVK7y+IuZTZnyh4=",
