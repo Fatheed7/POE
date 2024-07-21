@@ -11,7 +11,7 @@ namespace POE.Models
         public int RequiredLvl { get; set; }
 
         [JsonPropertyName("color")]
-        public string Color { get; set; } = string.Empty;
+        public string? Color { get; set; }
 
         [JsonPropertyName("isReward")]
         public bool IsReward { get; set; }
@@ -23,7 +23,7 @@ namespace POE.Models
         public List<BuyData>? Buy { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
 
         [JsonPropertyName("isVaal")]
         public bool IsVaal { get; set; }
@@ -32,7 +32,7 @@ namespace POE.Models
         public List<string>? GemTags { get; set; }
 
         [JsonPropertyName("iconPath")]
-        public string IconPath { get; set; } = string.Empty;
+        public string? IconPath { get; set; }
 
         [JsonPropertyName("isActive")]
         public bool IsActive { get; set; }
