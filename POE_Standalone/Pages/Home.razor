@@ -22,7 +22,7 @@
                     </MudItem>
                     <MudItem xs="10">
                         <MudAutocomplete T="OilData" Label="Search for annointment" @bind-Value="selectedOil"
-                                         SearchFunc="@SearchOils"
+                                         SearchFunc="@SearchOils" MaxItems=null
                                          ToStringFunc="@((oil) => oil?.Passive ?? string.Empty)" />
                     </MudItem>
                 </MudGrid>
@@ -33,9 +33,9 @@
                         <MudPaper Elevation="0" Class="mt-5">
                             <MudStack>
                                 <MudText><strong>Passive:</strong> @selectedOil.Passive</MudText>
-                                <MudText><strong>Stats:</strong> @selectedOil.Stats</MudText>
+                                <MudText><strong>Stats:</strong><br /> @FormatTextWithLineBreaks(@selectedOil.Stats)</MudText>
                             </MudStack>
-                            <MudGrid>
+                            <MudGrid Class="mt-3">
                                 <MudItem xs="4">
                                     <MudText><strong>Oil 1:</strong> @selectedOil.Oil_1</MudText>
                                 </MudItem>
@@ -69,7 +69,7 @@
                 <MudGrid Class="d-flex justify-center align-end" AlignItems="Center">
                     <MudItem xs="10">
                         <MudAutocomplete T="GemData" Label="Search for skill gem" @bind-Value="selectedGem"
-                                         SearchFunc="@SearchGems"
+                                         SearchFunc="@SearchGems" MaxItems=null
                                          ToStringFunc="@((gem) => gem?.Name ?? string.Empty)" />
                     </MudItem>
                     <MudItem xs="2">
@@ -148,7 +148,7 @@
     {
         var oilArray = await Http.GetFromJsonAsync<OilData[]>("oilData.json");
         var gemArray = await Http.GetFromJsonAsync<GemData[]>("gemData.json");
-        oils = oilArray?.ToList();
+        oils = oilArray?.OrderBy(oil => oil.Passive).ToList();
         gems = gemArray?.ToList();
         isLoading = false;
     }
@@ -234,5 +234,17 @@
     private void ClearOil()
     {
         selectedOil = null;
+    }
+
+    private MarkupString FormatTextWithLineBreaks(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return new MarkupString(string.Empty);
+        }
+
+        // Replace newline characters with <br> tags
+        var htmlText = text.Replace("\n", "<br/>");
+        return new MarkupString(htmlText);
     }
 }
